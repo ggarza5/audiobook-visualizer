@@ -298,46 +298,8 @@ def transcribe_audio():
                 print(f"Generating image for semantic shift...")
                 image_base64 = generate_image(analysis["image_prompt"])
                 if image_base64:
-                    # Save image to disk for debugging
-                    import time
-                    timestamp = int(time.time())
-                    image_filename = f"generated_image_{timestamp}.png"
-                    image_path = os.path.join("static", "generated_images")
-                    os.makedirs(image_path, exist_ok=True)
-                    full_path = os.path.join(image_path, image_filename)
-                    
-                    # Decode and save - image_base64 is always a base64 string
-                    try:
-                        # Ensure we have a valid base64 string
-                        if not isinstance(image_base64, str):
-                            image_base64 = str(image_base64)
-                        
-                        # Decode base64 to bytes
-                        image_bytes = base64.b64decode(image_base64, validate=True)
-                        
-                        # Verify it's actually PNG image data (PNG signature: 89 50 4E 47 0D 0A 1A 0A)
-                        if len(image_bytes) >= 8 and image_bytes[:8] == b'\x89PNG\r\n\x1a\n':
-                            with open(full_path, "wb") as f:
-                                f.write(image_bytes)
-                            print(f"✓ Image saved to: {full_path} ({len(image_bytes)} bytes, verified PNG)")
-                        else:
-                            # Check what we actually got
-                            first_bytes_hex = ' '.join(f'{b:02x}' for b in image_bytes[:16])
-                            print(f"✗ Warning: Decoded data doesn't look like PNG")
-                            print(f"  First 16 bytes (hex): {first_bytes_hex}")
-                            print(f"  Expected PNG signature: 89 50 4e 47 0d 0a 1a 0a")
-                            # Still save it - might be a different image format
-                            with open(full_path, "wb") as f:
-                                f.write(image_bytes)
-                            print(f"✓ Saved anyway: {full_path} ({len(image_bytes)} bytes)")
-                    except Exception as e:
-                        print(f"✗ Error saving image: {e}")
-                        import traceback
-                        traceback.print_exc()
-                    
                     result["image"] = image_base64
                     result["image_prompt"] = analysis["image_prompt"]
-                    result["image_url"] = f"/static/generated_images/{image_filename}"
                     print(f"✓ Image added to response (size: {len(image_base64)} chars)")
                 else:
                     print("✗ Warning: Image generation returned None")
